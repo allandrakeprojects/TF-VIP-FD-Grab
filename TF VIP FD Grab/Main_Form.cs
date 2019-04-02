@@ -141,6 +141,8 @@ namespace TF_VIP_FD_Grab
         {
             InitializeComponent();
 
+
+
             timer_landing.Start();
         }
 
@@ -225,7 +227,7 @@ namespace TF_VIP_FD_Grab
         // Click Close
         private void pictureBox_close_Click(object sender, EventArgs e)
         {
-            DialogResult dr = MessageBox.Show("Exit the program?", "TF FD Grab", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult dr = MessageBox.Show("Exit the program?", "TF VIP FD Grab", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dr == DialogResult.Yes)
             {
                 __isClose = true;
@@ -244,7 +246,7 @@ namespace TF_VIP_FD_Grab
         {
             if (!__isClose)
             {
-                DialogResult dr = MessageBox.Show("Exit the program?", "TF FD Grab", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult dr = MessageBox.Show("Exit the program?", "TF VIP FD Grab", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (dr == DialogResult.No)
                 {
                     e.Cancel = true;
@@ -309,11 +311,10 @@ namespace TF_VIP_FD_Grab
                         label_player_last_bill_no.Visible = false;
                         label_page_count.Visible = false;
                         label_currentrecord.Visible = false;
-                        __mainFormHandler = Application.OpenForms[0];
-                        __mainFormHandler.Size = new Size(466, 468);
 
-                        SendITSupport("The application have been logout, please re-login again.");
+                        //SendITSupport("The application have been logout, please re-login again.");
                         SendMyBot("The application have been logout, please re-login again.");
+                        SendMyBot("Firing up!");
                         __send = 0;
                         timer_pending.Stop();
                     }));
@@ -334,6 +335,7 @@ namespace TF_VIP_FD_Grab
                                 {
                                     args.Frame.ExecuteJavaScriptAsync("document.getElementById('username').value = 'tfrain';");
                                     args.Frame.ExecuteJavaScriptAsync("document.getElementById('password').value = 'qq123123';");
+                                    args.Frame.ExecuteJavaScriptAsync("document.querySelector('#login').click();");
                                     __isLogin = false;
                                     panel_cefsharp.Visible = true;
                                     label_player_last_bill_no.Text = "-";
@@ -397,6 +399,7 @@ namespace TF_VIP_FD_Grab
         private void timer_landing_Tick(object sender, EventArgs e)
         {
             panel_landing.Visible = false;
+            timer_size.Start();
             timer_landing.Stop();
         }
 
@@ -416,6 +419,9 @@ namespace TF_VIP_FD_Grab
                     await ___GetLastBillNoAsync();
                 }
 
+                label_player_last_bill_no.Text = "Last Bill No.: " + Properties.Settings.Default.______last_bill_no;
+                Properties.Settings.Default.______last_bill_no = "D00320828";
+                Properties.Settings.Default.Save();
                 label_player_last_bill_no.Text = "Last Bill No.: " + Properties.Settings.Default.______last_bill_no;
             }
             catch (Exception err)
@@ -550,7 +556,7 @@ namespace TF_VIP_FD_Grab
         {
             try
             {
-                string start_time = DateTime.Now.AddDays(-2).ToString("yyyy-MM-dd 00:00:00");
+                string start_time = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd 00:00:00");
                 string end_time = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd 00:00:00");
 
                 start_time = start_time.Replace("-", "%2F");
@@ -571,7 +577,7 @@ namespace TF_VIP_FD_Grab
                 wc.Encoding = Encoding.UTF8;
                 wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
 
-                byte[] result = await wc.DownloadDataTaskAsync("http://www.huatchaiya.com/manager/payment/searchDeposit?transactionId=&referenceNo=&userId=&status=9999&type=2&toBankIdOrBranch=-1&createDateStart=" + start_time + "&createDateEnd=" + end_time + "&vipLevel=-1&approvedDateStart=&approvedDateEnd=&pageNumber=1&pageSize=1000000&sortCondition=4&sortName=createTime&sortOrder=1&searchText=");
+                byte[] result = await wc.DownloadDataTaskAsync("http://www.huatchaiya.com/manager/payment/searchDeposit?transactionId=&referenceNo=&userId=&status=9999&type=0&toBankIdOrBranch=-1&createDateStart=" + start_time + "&createDateEnd=" + end_time + "&vipLevel=-1&approvedDateStart=&approvedDateEnd=&pageNumber=1&pageSize=1000000&sortCondition=4&sortName=createTime&sortOrder=1&searchText=");
                 string responsebody = Encoding.UTF8.GetString(result);
                 var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                 __jo = JObject.Parse(deserializeObject.ToString());
@@ -878,7 +884,7 @@ namespace TF_VIP_FD_Grab
                 JToken jo = JObject.Parse(deserializeObject.ToString());
                 JToken status = jo.SelectToken("$.aaData[0].status");
 
-                string path = Path.GetTempPath() + @"\fdgrab_yb_pending.txt";
+                string path = Path.GetTempPath() + @"\fdgrab_tfvip_pending.txt";
                 if (status.ToString() == "2")
                 {
                     Properties.Settings.Default.______pending_bill_no = Properties.Settings.Default.______pending_bill_no.Replace(bill_no + "*|*", "");
@@ -1462,6 +1468,12 @@ namespace TF_VIP_FD_Grab
             {
                 Application.DoEvents();
             }
+        }
+
+        private void timer_size_Tick(object sender, EventArgs e)
+        {
+            __mainFormHandler = Application.OpenForms[0];
+            __mainFormHandler.Size = new Size(466, 168);
         }
     }
 }
