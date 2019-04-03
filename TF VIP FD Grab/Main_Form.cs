@@ -420,9 +420,6 @@ namespace TF_VIP_FD_Grab
                 }
 
                 label_player_last_bill_no.Text = "Last Bill No.: " + Properties.Settings.Default.______last_bill_no;
-                Properties.Settings.Default.______last_bill_no = "D00320828";
-                Properties.Settings.Default.Save();
-                label_player_last_bill_no.Text = "Last Bill No.: " + Properties.Settings.Default.______last_bill_no;
             }
             catch (Exception err)
             {
@@ -462,12 +459,12 @@ namespace TF_VIP_FD_Grab
                         ["token"] = token
                     };
 
-                    byte[] result = await wb.UploadValuesTaskAsync("http://192.168.10.252:8080/API/lastFDRecord", "POST", data);
+                    byte[] result = await wb.UploadValuesTaskAsync("http://192.168.10.252:8080/zeus2/API/lastFDRecord", "POST", data);
                     string responsebody = Encoding.UTF8.GetString(result);
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo = JObject.Parse(deserializeObject.ToString());
                     JToken lbn = jo.SelectToken("$.msg");
-
+                    
                     Properties.Settings.Default.______last_bill_no = lbn.ToString();
                     Properties.Settings.Default.Save();
                 }
