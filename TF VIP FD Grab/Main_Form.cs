@@ -353,24 +353,35 @@ namespace TF_VIP_FD_Grab
             {
                 Invoke(new Action(async () =>
                 {
-                    label_brand.Visible = true;
-                    pictureBox_loader.Visible = true;
-                    label_player_last_bill_no.Visible = true;
-                    label_page_count.Visible = true;
-                    label_currentrecord.Visible = true;
-                    __mainFormHandler = Application.OpenForms[0];
-                    __mainFormHandler.Size = new Size(466, 168);
-
-                    if (!__isLogin)
+                    try
                     {
-                        timer_pending.Start();
-                        __isLogin = true;
-                        panel_cefsharp.Visible = false;
                         label_brand.Visible = true;
                         pictureBox_loader.Visible = true;
                         label_player_last_bill_no.Visible = true;
-                        await ___PlayerLastBillNoAsync();
-                        await ___GetPlayerListsRequest();
+                        label_page_count.Visible = true;
+                        label_currentrecord.Visible = true;
+                        __mainFormHandler = Application.OpenForms[0];
+                        __mainFormHandler.Size = new Size(466, 168);
+
+                        if (!__isLogin)
+                        {
+                            timer_pending.Start();
+                            __isLogin = true;
+                            panel_cefsharp.Visible = false;
+                            label_brand.Visible = true;
+                            pictureBox_loader.Visible = true;
+                            label_player_last_bill_no.Visible = true;
+                            await ___PlayerLastBillNoAsync();
+                            await ___GetPlayerListsRequest();
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        //SendITSupport("There's a problem to the server, please re-open the application.");
+                        SendMyBot(err.ToString());
+
+                        __isClose = false;
+                        Environment.Exit(0);
                     }
                 }));
             }
@@ -459,7 +470,7 @@ namespace TF_VIP_FD_Grab
                         ["token"] = token
                     };
 
-                    byte[] result = await wb.UploadValuesTaskAsync("http://192.168.10.252:8080/zeus2/API/lastFDRecord", "POST", data);
+                    byte[] result = await wb.UploadValuesTaskAsync("http://192.168.10.252:8080/API/lastFDRecord", "POST", data);
                     string responsebody = Encoding.UTF8.GetString(result);
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo = JObject.Parse(deserializeObject.ToString());
@@ -510,7 +521,7 @@ namespace TF_VIP_FD_Grab
                         ["token"] = token
                     };
 
-                    var result = await wb.UploadValuesTaskAsync("http://192.168.10.252:8080/zeus2/API/lastFDRecord", "POST", data);
+                    var result = await wb.UploadValuesTaskAsync("http://zeus.ssitex.com:8080/API/lastFDRecord", "POST", data);
                     string responsebody = Encoding.UTF8.GetString(result);
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo = JObject.Parse(deserializeObject.ToString());
@@ -658,7 +669,6 @@ namespace TF_VIP_FD_Grab
                         JToken date_deposit = __jo.SelectToken("$.aaData[" + i + "].createTime").ToString();
                         DateTime date_deposit_replace = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Math.Round(Convert.ToDouble(date_deposit.ToString()) / 1000d)).ToLocalTime();
                         JToken process_datetime = __jo.SelectToken("$.aaData[" + i + "].approvedTime").ToString();
-                        //DateTime process_datetime_replace = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Math.Round(Convert.ToDouble(process_datetime.ToString()) / 1000d)).ToLocalTime();
                         JToken vip = __jo.SelectToken("$.aaData[" + i + "].vipLevel").ToString();
                         JToken gateway = __jo.SelectToken("$.aaData[" + i + "].toBankName").ToString();
                         JToken method = __jo.SelectToken("$.aaData[" + i + "].toPaymentType").ToString();
@@ -1002,7 +1012,7 @@ namespace TF_VIP_FD_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://192.168.10.252:8080/zeus2/API/sendFD", "POST", data);
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/sendFD", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                 }
             }
@@ -1060,7 +1070,7 @@ namespace TF_VIP_FD_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://192.168.10.252:8080/zeus2/API/sendFD", "POST", data);
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendFD", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                 }
             }
@@ -1107,8 +1117,21 @@ namespace TF_VIP_FD_Grab
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo_deposit = JObject.Parse(deserializeObject.ToString());
                     JToken _phone_number = jo_deposit.SelectToken("$.phoneNumber").ToString();
-
-                    __playerlist_cn = _phone_number.ToString();
+                    if (!String.IsNullOrEmpty(_phone_number.ToString()))
+                    {
+                        if (_phone_number.ToString().Substring(0, 2) == "86")
+                        {
+                            __playerlist_cn = _phone_number.ToString().Substring(2);
+                        }
+                        else
+                        {
+                            __playerlist_cn = _phone_number.ToString();
+                        }
+                    }
+                    else
+                    {
+                        __playerlist_cn = _phone_number.ToString();
+                    }
                 }
                 else
                 {
@@ -1127,8 +1150,21 @@ namespace TF_VIP_FD_Grab
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo_deposit = JObject.Parse(deserializeObject.ToString());
                     JToken _phone_number = jo_deposit.SelectToken("$.phoneNumber").ToString();
-
-                    __playerlist_cn_pending = _phone_number.ToString();
+                    if (!String.IsNullOrEmpty(_phone_number.ToString()))
+                    {
+                        if (_phone_number.ToString().Substring(0, 2) == "86")
+                        {
+                            __playerlist_cn_pending = _phone_number.ToString().Substring(2);
+                        }
+                        else
+                        {
+                            __playerlist_cn_pending = _phone_number.ToString();
+                        }
+                    }
+                    else
+                    {
+                        __playerlist_cn_pending = _phone_number.ToString();
+                    }
                 }
             }
             catch (Exception err)
@@ -1183,7 +1219,7 @@ namespace TF_VIP_FD_Grab
             }
             catch (Exception err)
             {
-                if (err.ToString().ToLower().Contains("hexadecimal"))
+                if (err.ToString().ToLower().Contains("hexadecimal") || err.ToString().ToLower().Contains("missing"))
                 {
                     string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                     string urlString = "https://api.telegram.org/bot{0}/sendMessage?chat_id={1}&text={2}";
@@ -1344,7 +1380,7 @@ namespace TF_VIP_FD_Grab
 
         private void timer_detect_running_Tick(object sender, EventArgs e)
         {
-            ___DetectRunning();
+            //___DetectRunning();
         }
 
         private void ___DetectRunning()
@@ -1369,7 +1405,7 @@ namespace TF_VIP_FD_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://192.168.10.252:8080/zeus2/API/updateAppStatus", "POST", data);
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/updateAppStatus", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                 }
             }
@@ -1417,7 +1453,7 @@ namespace TF_VIP_FD_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://192.168.10.252:8080/zeus2/API/updateAppStatus", "POST", data);
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/updateAppStatus", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                 }
             }
