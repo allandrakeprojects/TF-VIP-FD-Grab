@@ -26,7 +26,6 @@ namespace TF_VIP_FD_Grab
         private bool __isLogin = false;
         private bool __isClose;
         private bool m_aeroEnabled;
-        private bool __is_send = false;
         private int __send = 0;
         private int __total_player = 0;
         private string __brand_code = "TFVIP";
@@ -314,12 +313,18 @@ namespace TF_VIP_FD_Grab
 
                         //SendITSupport("The application have been logout, please re-login again.");
                         SendMyBot("The application have been logout, please re-login again.");
-                        SendMyBot("Firing up!");
+
                         __send = 0;
                         timer_pending.Stop();
+
+                        if (!Properties.Settings.Default.______is_send_telegram)
+                        {
+                            __isClose = false;
+                            Environment.Exit(0);
+                        }
                     }));
                 }
-
+                
                 __isLogin = false;
                 timer.Stop();
 
@@ -1264,7 +1269,7 @@ namespace TF_VIP_FD_Grab
 
         private void SendITSupport(string message)
         {
-            if (__is_send)
+            if (Properties.Settings.Default.______is_send_telegram)
             {
                 try
                 {
@@ -1380,7 +1385,7 @@ namespace TF_VIP_FD_Grab
 
         private void timer_detect_running_Tick(object sender, EventArgs e)
         {
-            //___DetectRunning();
+            ___DetectRunning();
         }
 
         private void ___DetectRunning()
@@ -1481,14 +1486,18 @@ namespace TF_VIP_FD_Grab
 
         private void panel1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (__is_send)
+            label1.Visible = false;
+
+            if (Properties.Settings.Default.______is_send_telegram)
             {
-                __is_send = false;
+                Properties.Settings.Default.______is_send_telegram = false;
+                Properties.Settings.Default.Save();
                 MessageBox.Show("Telegram Notification is Disabled.", __brand_code + " " + __app, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                __is_send = true;
+                Properties.Settings.Default.______is_send_telegram = true;
+                Properties.Settings.Default.Save();
                 MessageBox.Show("Telegram Notification is Enabled.", __brand_code + " " + __app, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
