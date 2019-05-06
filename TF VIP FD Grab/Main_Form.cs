@@ -890,7 +890,7 @@ namespace TF_VIP_FD_Grab
                 wc.Encoding = Encoding.UTF8;
                 wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
 
-                byte[] result = await wc.DownloadDataTaskAsync("http://www.huatchaiya.com/manager/payment/searchDeposit?transactionId=" + bill_no + "&referenceNo=&userId=&status=9999&type=2&toBankIdOrBranch=-1&createDateStart=" + start_time + "&createDateEnd=" + end_time + "&vipLevel=-1&approvedDateStart=&approvedDateEnd=&pageNumber=1&pageSize=10&sortCondition=4&sortName=createTime&sortOrder=1&searchText=");
+                byte[] result = await wc.DownloadDataTaskAsync("http://www.huatchaiya.com/manager/payment/searchDeposit?transactionId=" + bill_no + "&referenceNo=&userId=&status=9999&type=0&toBankIdOrBranch=-1&createDateStart=" + start_time + "&createDateEnd=" + end_time + "&vipLevel=-1&approvedDateStart=&approvedDateEnd=&pageNumber=1&pageSize=10&sortCondition=4&sortName=createTime&sortOrder=1&searchText=");
                 string responsebody = Encoding.UTF8.GetString(result);
                 var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                 JToken jo = JObject.Parse(deserializeObject.ToString());
